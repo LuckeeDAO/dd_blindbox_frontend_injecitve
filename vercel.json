@@ -1,0 +1,53 @@
+{
+  "version": 2,
+  "name": "luckee-blindbox-frontend",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_CHAIN_ID": "injective-1",
+    "NEXT_PUBLIC_RPC_URL": "https://injective-rpc.publicnode.com",
+    "NEXT_PUBLIC_APP_NAME": "Luckee Blind Box",
+    "NEXT_PUBLIC_APP_DESCRIPTION": "基于 Injective 的去中心化盲盒交易平台"
+  },
+  "functions": {
+    "src/pages/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "/admin/dashboard",
+      "permanent": false
+    }
+  ]
+}
