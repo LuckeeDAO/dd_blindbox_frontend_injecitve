@@ -130,3 +130,4 @@ logging/data/
 # Backup files
 *.bak
 *.backup
+.vercel
