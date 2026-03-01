@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Plus, X, Save, AlertCircle } from 'lucide-react'
 import { useCreateBlindBox } from '../../hooks/useCreateBlindBox'
 import { toast } from 'react-hot-toast'
+import { useChain } from '@/hooks/useChain'
 
 interface RarityConfig {
   rarity: string
@@ -13,7 +14,15 @@ interface RarityConfig {
 }
 
 export const CreateBlindBoxForm: React.FC = () => {
+  const { chain } = useChain()
+  const addressPlaceholder =
+    chain.family === 'evm'
+      ? '0x...'
+      : chain.family === 'cosmos'
+        ? `${chain.cosmos?.bech32Prefix || 'addr'}1...`
+        : 'wallet...'
   const [formData, setFormData] = useState({
+    period: '',
     name: '',
     description: '',
     price: '',
@@ -35,6 +44,7 @@ export const CreateBlindBoxForm: React.FC = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
+    if (!formData.period || parseInt(formData.period) <= 0) newErrors.period = 'Valid period is required'
     if (!formData.name.trim()) newErrors.name = 'Name is required'
     if (!formData.description.trim()) newErrors.description = 'Description is required'
     if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Valid price is required'
@@ -80,9 +90,10 @@ export const CreateBlindBoxForm: React.FC = () => {
       }))
 
       await createBlindBoxMutation.mutateAsync({
+        period: parseInt(formData.period),
         name: formData.name,
         description: formData.description,
-        price: { denom: 'inj', amount: formData.price },
+        price: { denom: chain.nativeToken.denom, amount: formData.price },
         total_supply: parseInt(formData.totalSupply),
         max_per_user: parseInt(formData.maxPerUser),
         start_time: formData.startTime ? new Date(formData.startTime).toISOString() : undefined,
@@ -95,6 +106,7 @@ export const CreateBlindBoxForm: React.FC = () => {
       
       // Reset form
       setFormData({
+        period: '',
         name: '',
         description: '',
         price: '',
@@ -155,6 +167,22 @@ export const CreateBlindBoxForm: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
+              <label className="block text-white font-medium mb-2">Period</label>
+              <input
+                type="number"
+                value={formData.period}
+                onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter period number"
+              />
+              {errors.period && (
+                <p className="text-red-400 text-sm mt-1 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  {errors.period}
+                </p>
+              )}
+            </div>
+            <div>
               <label className="block text-white font-medium mb-2">Name</label>
               <input
                 type="text"
@@ -172,7 +200,9 @@ export const CreateBlindBoxForm: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-white font-medium mb-2">Price (inj)</label>
+              <label className="block text-white font-medium mb-2">
+                Price ({chain.nativeToken.symbol.toLowerCase()})
+              </label>
               <input
                 type="number"
                 value={formData.price}
@@ -246,7 +276,7 @@ export const CreateBlindBoxForm: React.FC = () => {
                 value={formData.nftCollection}
                 onChange={(e) => setFormData({ ...formData, nftCollection: e.target.value })}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="inj1..."
+                placeholder={addressPlaceholder}
               />
               {errors.nftCollection && (
                 <p className="text-red-400 text-sm mt-1 flex items-center">

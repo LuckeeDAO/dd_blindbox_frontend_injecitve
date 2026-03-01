@@ -13,9 +13,11 @@ import {
   DollarSign
 } from 'lucide-react'
 import { useAdminStats } from '../../hooks/useAdminStats'
+import { useChain } from '@/hooks/useChain'
 
 export const StatisticsDashboard: React.FC = () => {
   const { data: stats, isLoading } = useAdminStats()
+  const { chain } = useChain()
 
   if (isLoading) {
     return (
@@ -173,10 +175,10 @@ export const StatisticsDashboard: React.FC = () => {
           <h3 className="text-xl font-bold text-white mb-4">Top Performing Blind Boxes</h3>
           <div className="space-y-4">
             {[
-              { name: 'Legendary Collection', sales: 1250, revenue: '12,500 INJ' },
-              { name: 'Epic Warriors', sales: 980, revenue: '9,800 INJ' },
-              { name: 'Mystic Creatures', sales: 750, revenue: '7,500 INJ' },
-              { name: 'Cosmic Heroes', sales: 620, revenue: '6,200 INJ' },
+              { name: 'Legendary Collection', sales: 1250, revenue: `12,500 ${chain.nativeToken.symbol}` },
+              { name: 'Epic Warriors', sales: 980, revenue: `9,800 ${chain.nativeToken.symbol}` },
+              { name: 'Mystic Creatures', sales: 750, revenue: `7,500 ${chain.nativeToken.symbol}` },
+              { name: 'Cosmic Heroes', sales: 620, revenue: `6,200 ${chain.nativeToken.symbol}` },
             ].map((item, index) => (
               <motion.div
                 key={item.name}

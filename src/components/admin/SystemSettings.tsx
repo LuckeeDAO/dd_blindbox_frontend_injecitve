@@ -14,6 +14,7 @@ import {
   Play
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { useChain } from '@/hooks/useChain'
 
 interface SystemSettings {
   admin: string
@@ -26,9 +27,17 @@ interface SystemSettings {
 }
 
 export const SystemSettings: React.FC = () => {
+  const { chain } = useChain()
+  const addressPlaceholder =
+    chain.family === 'evm'
+      ? '0x...'
+      : chain.family === 'cosmos'
+        ? `${chain.cosmos?.bech32Prefix || 'addr'}1...`
+        : 'wallet...'
+
   const [settings, setSettings] = useState<SystemSettings>({
-    admin: 'inj1...',
-    feeCollector: 'inj1...',
+    admin: '',
+    feeCollector: '',
     feeRate: 50,
     paused: false,
     maxBlindBoxes: 100,
@@ -167,7 +176,7 @@ export const SystemSettings: React.FC = () => {
               value={settings.admin}
               onChange={(e) => setSettings({ ...settings, admin: e.target.value })}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="inj1..."
+              placeholder={addressPlaceholder}
               disabled
             />
             <p className="text-gray-400 text-sm mt-1">Cannot be changed after deployment</p>
@@ -180,7 +189,7 @@ export const SystemSettings: React.FC = () => {
               value={settings.feeCollector}
               onChange={(e) => setSettings({ ...settings, feeCollector: e.target.value })}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="inj1..."
+              placeholder={addressPlaceholder}
             />
           </div>
 

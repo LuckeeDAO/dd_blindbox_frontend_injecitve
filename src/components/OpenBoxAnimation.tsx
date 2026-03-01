@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Purchase } from '@/types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface OpenBoxAnimationProps {
   purchase: Purchase;
@@ -15,16 +16,23 @@ export const OpenBoxAnimation: React.FC<OpenBoxAnimationProps> = ({
   onComplete,
   onClose
 }) => {
+  const { t, locale } = useTranslation();
   const [isAnimating, setIsAnimating] = useState(true);
   const [showResult, setShowResult] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
-  const steps = [
+  const steps = locale === 'zh' ? [
     '正在验证购买记录...',
     '生成随机数...',
     '计算NFT分发...',
     '开盒中...',
     '完成！'
+  ] : [
+    'Verifying purchase...',
+    'Generating random number...',
+    'Calculating NFT distribution...',
+    'Opening box...',
+    'Complete!'
   ];
 
   useEffect(() => {
@@ -130,11 +138,11 @@ export const OpenBoxAnimation: React.FC<OpenBoxAnimationProps> = ({
                 </motion.div>
 
                 {/* 结果标题 */}
-                <h2 className="text-2xl font-bold text-gray-900">开盒成功！</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{t('openAnimation.congratulations')}</h2>
 
                 {/* NFT结果 */}
                 <div className="space-y-3">
-                  <h3 className="text-lg font-medium text-gray-700">获得NFT</h3>
+                  <h3 className="text-lg font-medium text-gray-700">{locale === 'zh' ? '获得NFT' : 'Received NFTs'}</h3>
                   <div className="grid grid-cols-2 gap-2">
                     {purchase.nft_tokens.map((token, index) => (
                       <motion.div
@@ -148,7 +156,7 @@ export const OpenBoxAnimation: React.FC<OpenBoxAnimationProps> = ({
                           NFT #{token}
                         </div>
                         <div className="text-xs text-gray-500">
-                          稀有度: 待定
+                          {t('nft.rarity')}: {locale === 'zh' ? '待定' : 'TBD'}
                         </div>
                       </motion.div>
                     ))}
@@ -158,17 +166,17 @@ export const OpenBoxAnimation: React.FC<OpenBoxAnimationProps> = ({
                 {/* 统计信息 */}
                 <div className="bg-gray-50 rounded-lg p-4 text-left">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">购买数量:</span>
+                    <span className="text-gray-600">{t('buyForm.quantity')}:</span>
                     <span className="text-gray-900">{purchase.quantity}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">获得NFT:</span>
+                    <span className="text-gray-600">{locale === 'zh' ? '获得NFT' : 'Received NFTs'}:</span>
                     <span className="text-gray-900">{purchase.nft_tokens.length}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">开盒时间:</span>
+                    <span className="text-gray-600">{locale === 'zh' ? '开盒时间' : 'Opened At'}:</span>
                     <span className="text-gray-900">
-                      {purchase.opened_at ? new Date(purchase.opened_at).toLocaleString() : '刚刚'}
+                      {locale === 'zh' ? '刚刚' : 'Just now'}
                     </span>
                   </div>
                 </div>
@@ -178,7 +186,7 @@ export const OpenBoxAnimation: React.FC<OpenBoxAnimationProps> = ({
                   onClick={onClose}
                   className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
                 >
-                  完成
+                  {t('common.close')}
                 </button>
               </motion.div>
             )}

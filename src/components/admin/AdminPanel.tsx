@@ -35,9 +35,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isAdmin }) => {
           <div className="w-24 h-24 mx-auto mb-6 bg-red-500/20 rounded-full flex items-center justify-center">
             <Activity className="w-12 h-12 text-red-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-4">Access Denied</h1>
+          <h1 className="text-3xl font-bold text-white mb-4">访问被拒绝</h1>
           <p className="text-gray-300 text-lg">
-            You don&apos;t have permission to access the admin panel.
+            您没有权限访问管理面板。
           </p>
         </div>
       </div>
@@ -45,10 +45,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isAdmin }) => {
   }
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'create', label: 'Create Blind Box', icon: Plus },
-    { id: 'manage', label: 'Manage Blind Boxes', icon: Package },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'dashboard', label: '仪表板', icon: BarChart3 },
+    { id: 'create', label: '创建盲盒', icon: Plus },
+    { id: 'manage', label: '管理盲盒', icon: Package },
+    { id: 'settings', label: '系统设置', icon: Settings },
   ]
 
   return (

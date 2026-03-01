@@ -1,15 +1,15 @@
 import { create } from 'zustand';
-import { WalletInfo } from '@/types';
-import { walletService } from '@/services/wallet';
+import { WalletInfo } from '@/types/wallet';
 
 interface WalletStore {
   wallet: WalletInfo | null;
   isConnecting: boolean;
   error: string | null;
   
-  connect: (mnemonic: string) => Promise<void>;
+  connect: (walletInfo: WalletInfo) => Promise<void>;
   disconnect: () => Promise<void>;
-  refreshBalance: () => Promise<void>;
+  setWallet: (wallet: WalletInfo | null) => void;
+  updateBalance: (balance: string) => void;
   setError: (error: string | null) => void;
 }
 
@@ -18,44 +18,33 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
   isConnecting: false,
   error: null,
 
-  connect: async (mnemonic: string) => {
+  connect: async (walletInfo: WalletInfo) => {
     set({ isConnecting: true, error: null });
-    
-    try {
-      const walletInfo = await walletService.connectWallet(mnemonic);
-      set({ wallet: walletInfo, isConnecting: false });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
-      set({ error: errorMessage, isConnecting: false });
-      throw error;
-    }
+
+    set({
+      wallet: walletInfo,
+      isConnecting: false,
+    });
   },
 
   disconnect: async () => {
-    try {
-      await walletService.disconnectWallet();
-      set({ wallet: null, error: null });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to disconnect wallet';
-      set({ error: errorMessage });
-    }
+    set({ wallet: null, error: null });
   },
 
-  refreshBalance: async () => {
+  setWallet: (wallet: WalletInfo | null) => {
+    set({ wallet });
+  },
+
+  updateBalance: (balance: string) => {
     const { wallet } = get();
     if (!wallet) return;
 
-    try {
-      const balance = await walletService.getBalance(wallet.address);
-      set({
-        wallet: {
-          ...wallet,
-          balance
-        }
-      });
-    } catch (error) {
-      console.error('Failed to refresh balance:', error);
-    }
+    set({
+      wallet: {
+        ...wallet,
+        balance,
+      },
+    });
   },
 
   setError: (error: string | null) => {

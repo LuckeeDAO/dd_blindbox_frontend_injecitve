@@ -1,28 +1,28 @@
 {
-  "version": 2,
-  "name": "luckee-blindbox-frontend",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
+  "framework": "nextjs",
   "env": {
-    "NEXT_PUBLIC_CHAIN_ID": "injective-1",
-    "NEXT_PUBLIC_RPC_URL": "https://injective-rpc.publicnode.com",
+    "NEXT_PUBLIC_DEFAULT_CHAIN": "avalanche_fuji",
+    "NEXT_PUBLIC_EVM_WALLET_PRIORITY": "andao,metamask",
+    "NEXT_PUBLIC_REQUIRE_ANDAO_PROVIDER": "false",
+    "NEXT_PUBLIC_AVALANCHE_CHAIN_ID": "43113",
+    "NEXT_PUBLIC_AVALANCHE_RPC_URL": "https://api.avax-test.network/ext/bc/C/rpc",
+    "NEXT_PUBLIC_AVALANCHE_CONTRACT_ADDRESS": "",
+    "NEXT_PUBLIC_AVALANCHE_ABI": "",
+    "NEXT_PUBLIC_EVM_METHOD_CURRENT_SALE": "currentSale",
+    "NEXT_PUBLIC_EVM_METHOD_BOX_BY_PERIOD": "blindBoxByPeriod",
+    "NEXT_PUBLIC_EVM_METHOD_REVEAL_PROGRESS": "revealProgress",
+    "NEXT_PUBLIC_EVM_METHOD_USER_REVEAL_STATUS": "userRevealStatus",
+    "NEXT_PUBLIC_EVM_METHOD_BUY": "buyBlindBox",
+    "NEXT_PUBLIC_EVM_METHOD_REVEAL": "revealMyCommitment",
+    "NEXT_PUBLIC_EVM_METHOD_TRIGGER": "triggerStateTransition",
+    "NEXT_PUBLIC_INJECTIVE_CHAIN_ID": "injective-888",
+    "NEXT_PUBLIC_INJECTIVE_RPC_URL": "https://testnet.sentry.tm.injective.network:443",
+    "NEXT_PUBLIC_INJECTIVE_CONTRACT_ADDRESS": "",
+    "NEXT_PUBLIC_ADMIN_ADDRESSES": "",
+    "NEXT_PUBLIC_AVALANCHE_ADMIN_ADDRESSES": "",
+    "NEXT_PUBLIC_INJECTIVE_ADMIN_ADDRESSES": "",
     "NEXT_PUBLIC_APP_NAME": "Luckee Blind Box",
-    "NEXT_PUBLIC_APP_DESCRIPTION": "基于 Injective 的去中心化盲盒交易平台"
-  },
-  "functions": {
-    "src/pages/api/**/*.ts": {
-      "maxDuration": 30
-    }
+    "NEXT_PUBLIC_APP_DESCRIPTION": "多链去中心化盲盒交易平台（Avalanche优先）"
   },
   "headers": [
     {
@@ -41,13 +41,6 @@
           "value": "1; mode=block"
         }
       ]
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/admin",
-      "destination": "/admin/dashboard",
-      "permanent": false
     }
   ]
 }

@@ -1,7 +1,9 @@
 import axios from 'axios'
 import { BlindBox, BlindBoxStats } from '../types'
+import { DEFAULT_CHAIN_KEY, getChainConfig } from '@/config/chains'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api'
+const defaultChain = getChainConfig(DEFAULT_CHAIN_KEY)
 
 // Admin statistics interface
 export interface AdminStats {
@@ -24,6 +26,7 @@ export interface SystemSettings {
 
 // Create blind box parameters interface
 export interface CreateBlindBoxParams {
+  period: number
   name: string
   description: string
   price: { denom: string; amount: string }
@@ -51,7 +54,7 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       totalBlindBoxes: 12,
       totalUsers: 1250,
       totalSales: 5430,
-      totalRevenue: '54,300 INJ',
+      totalRevenue: `54,300 ${defaultChain.nativeToken.symbol}`,
       growthRate: 15.3
     }
   }

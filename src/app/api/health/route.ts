@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
+import { getChainConfig } from '@/config/chains';
 
 export async function GET() {
   try {
+    const defaultChain = process.env.NEXT_PUBLIC_DEFAULT_CHAIN || 'avalanche_fuji';
+    const chain = getChainConfig(defaultChain);
+
     // 检查系统状态
     const healthStatus = {
       status: 'healthy',
@@ -11,9 +15,11 @@ export async function GET() {
       uptime: process.uptime(),
       environment: process.env.NODE_ENV || 'development',
       chain: {
-        id: process.env.NEXT_PUBLIC_CHAIN_ID || 'injective-888',
-        rpc: process.env.NEXT_PUBLIC_RPC_URL || 'https://testnet.sentry.tm.injective.network:443',
-        contract: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || 'inj1ewczu8x8fxujuv84qx0yez0k0ua0wwh7lqdgmh',
+        key: chain.key,
+        family: chain.family,
+        id: chain.chainId,
+        rpc: chain.rpcUrl,
+        contract: chain.contractAddress,
       },
       features: {
         blindBox: true,

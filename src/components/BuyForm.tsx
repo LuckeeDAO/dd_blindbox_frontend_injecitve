@@ -3,10 +3,12 @@
 import React, { useState } from 'react';
 import { BlindBox } from '@/types';
 import { motion } from 'framer-motion';
+import PaymentTokenSelector from './PaymentTokenSelector';
+import { usePaymentTokens } from '@/hooks/usePaymentTokens';
 
 interface BuyFormProps {
   blindBox: BlindBox;
-  onBuy: (quantity: number, userRandom?: string) => Promise<void>;
+  onBuy: (quantity: number, paymentToken: string, userRandom?: string) => Promise<void>;
   onClose: () => void;
   isLoading?: boolean;
 }
@@ -18,12 +20,20 @@ export const BuyForm: React.FC<BuyFormProps> = ({
   isLoading = false
 }) => {
   const [quantity, setQuantity] = useState(1);
+  const [paymentToken, setPaymentToken] = useState('usdt'); // 默认USDT
   const [userRandom, setUserRandom] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const paymentTokens = usePaymentTokens();
+  if (paymentTokens.length === 0) {
+    return null;
+  }
 
   const maxQuantity = Math.min(blindBox.max_per_user, blindBox.total_supply - blindBox.sold_count);
-  const totalPrice = parseInt(blindBox.price.amount) * quantity;
-  const totalPriceInInj = totalPrice / 1000000000000000000;
+  
+  // 根据选择的代币计算价格
+  const currentToken =
+    paymentTokens.find((t) => t.id === paymentToken) || paymentTokens[0];
+  const totalPrice = currentToken.price * quantity;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +43,7 @@ export const BuyForm: React.FC<BuyFormProps> = ({
     }
 
     try {
-      await onBuy(quantity, userRandom.trim() || undefined);
+      await onBuy(quantity, paymentToken, userRandom.trim() || undefined);
       onClose();
     } catch (error) {
       console.error('Purchase failed:', error);
@@ -78,6 +88,13 @@ export const BuyForm: React.FC<BuyFormProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* 支付代币选择 ⭐ */}
+          <PaymentTokenSelector
+            selectedToken={paymentToken}
+            onTokenChange={setPaymentToken}
+            quantity={quantity}
+          />
+
           {/* 数量选择 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -159,27 +176,7 @@ export const BuyForm: React.FC<BuyFormProps> = ({
             )}
           </div>
 
-          {/* 价格信息 */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-600">单价</span>
-              <span className="text-sm text-gray-900">
-                {parseInt(blindBox.price.amount) / 1000000000000000000} INJ
-              </span>
-            </div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-600">数量</span>
-              <span className="text-sm text-gray-900">{quantity}</span>
-            </div>
-            <div className="border-t border-gray-200 pt-2">
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-gray-900">总计</span>
-                <span className="text-lg font-bold text-purple-600">
-                  {totalPriceInInj} INJ
-                </span>
-              </div>
-            </div>
-          </div>
+          {/* 价格信息已在 PaymentTokenSelector 中显示 */}
 
           {/* 提交按钮 */}
           <div className="flex space-x-3">

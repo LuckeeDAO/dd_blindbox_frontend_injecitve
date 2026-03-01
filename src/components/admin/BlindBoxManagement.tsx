@@ -14,51 +14,58 @@ import {
   Settings
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { useChain } from '@/hooks/useChain'
 
 interface BlindBox {
   id: number
+  period: number
   name: string
   description: string
   price: { denom: string; amount: string }
   total_supply: number
   sold_count: number
   max_per_user: number
-  status: 'Active' | 'Paused' | 'SoldOut' | 'Ended' | 'Settled'
+  status: 'Preparing' | 'Packaged' | 'Revealed' | 'Rewarded' | 'AfterSale' | 'Completed' | 'Paused'
   created_at: string
   updated_at: string
 }
 
 export const BlindBoxManagement: React.FC = () => {
+  const { chain } = useChain()
+  const nativeUnit = BigInt(10) ** BigInt(chain.nativeToken.decimals)
   const [blindBoxes, setBlindBoxes] = useState<BlindBox[]>([
     {
       id: 1,
+      period: 1,
       name: 'Legendary Collection',
       description: 'A collection of legendary NFTs',
-      price: { denom: 'inj', amount: '1000000000000000000' },
+      price: { denom: chain.nativeToken.denom, amount: nativeUnit.toString() },
       total_supply: 1000,
       sold_count: 750,
       max_per_user: 5,
-      status: 'Active',
+      status: 'Packaged',
       created_at: '2024-01-01T00:00:00Z',
       updated_at: '2024-01-15T10:30:00Z'
     },
     {
       id: 2,
+      period: 2,
       name: 'Epic Warriors',
       description: 'Epic warrior NFTs with special abilities',
-      price: { denom: 'inj', amount: '500000000000000000' },
+      price: { denom: chain.nativeToken.denom, amount: (nativeUnit / BigInt(2)).toString() },
       total_supply: 500,
       sold_count: 500,
       max_per_user: 3,
-      status: 'SoldOut',
+      status: 'Revealed',
       created_at: '2024-01-05T00:00:00Z',
       updated_at: '2024-01-20T15:45:00Z'
     },
     {
       id: 3,
+      period: 3,
       name: 'Mystic Creatures',
       description: 'Mystical creatures from another realm',
-      price: { denom: 'inj', amount: '750000000000000000' },
+      price: { denom: chain.nativeToken.denom, amount: ((nativeUnit * BigInt(3)) / BigInt(4)).toString() },
       total_supply: 300,
       sold_count: 150,
       max_per_user: 2,
@@ -83,8 +90,14 @@ export const BlindBoxManagement: React.FC = () => {
     }
   }
 
+  const inferDecimals = (denom: string) => {
+    const lower = denom.toLowerCase()
+    if (lower.includes('usdt') || lower.includes('usdc')) return 6
+    return chain.nativeToken.decimals
+  }
+
   const formatPrice = (price: { denom: string; amount: string }) => {
-    const amount = parseInt(price.amount) / 1000000
+    const amount = Number(price.amount) / 10 ** inferDecimals(price.denom)
     return `${amount} ${price.denom.replace('u', '').toUpperCase()}`
   }
 
@@ -158,7 +171,7 @@ export const BlindBoxManagement: React.FC = () => {
             <div>
               <p className="text-green-200 text-sm">Active Boxes</p>
               <p className="text-3xl font-bold text-white">
-                {blindBoxes.filter(bb => bb.status === 'Active').length}
+                {blindBoxes.filter(bb => bb.status === 'Packaged').length}
               </p>
             </div>
             <Settings className="w-12 h-12 text-green-400" />
@@ -193,9 +206,9 @@ export const BlindBoxManagement: React.FC = () => {
               <p className="text-yellow-200 text-sm">Total Revenue</p>
               <p className="text-3xl font-bold text-white">
                 {blindBoxes.reduce((sum, bb) => {
-                  const price = parseInt(bb.price.amount) / 1000000000000000000
+                  const price = Number(bb.price.amount) / 10 ** inferDecimals(bb.price.denom)
                   return sum + (price * bb.sold_count)
-                }, 0).toFixed(0)} INJ
+                }, 0).toFixed(0)} {chain.nativeToken.symbol}
               </p>
             </div>
             <DollarSign className="w-12 h-12 text-yellow-400" />
@@ -214,6 +227,7 @@ export const BlindBoxManagement: React.FC = () => {
             <thead className="bg-white/5">
               <tr>
                 <th className="px-6 py-4 text-left text-white font-medium">Name</th>
+                <th className="px-6 py-4 text-left text-white font-medium">Period</th>
                 <th className="px-6 py-4 text-left text-white font-medium">Price</th>
                 <th className="px-6 py-4 text-left text-white font-medium">Supply</th>
                 <th className="px-6 py-4 text-left text-white font-medium">Sold</th>
@@ -236,6 +250,9 @@ export const BlindBoxManagement: React.FC = () => {
                       <p className="text-white font-medium">{blindBox.name}</p>
                       <p className="text-gray-400 text-sm">{blindBox.description}</p>
                     </div>
+                  </td>
+                  <td className="px-6 py-4 text-white">
+                    第 {blindBox.period} 期
                   </td>
                   <td className="px-6 py-4 text-white">
                     {formatPrice(blindBox.price)}

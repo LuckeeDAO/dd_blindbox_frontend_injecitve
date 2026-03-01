@@ -4,13 +4,36 @@ import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AdminPanel } from '@/components/admin/AdminPanel'
 import { useWalletStore } from '@/stores/wallet'
+import { useChain } from '@/hooks/useChain'
 
-// Mock admin addresses - in production, this should be checked against the contract
-const ADMIN_ADDRESSES = [
-  'inj1admin123456789',
-  'inj1creator123456789',
-  // Add more admin addresses as needed
-]
+function parseAddressList(value?: string): string[] {
+  if (!value) return []
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function getAdminAddressesByChain(chainKey: string): string[] {
+  if (chainKey === 'avalanche_fuji') {
+    const chainSpecific = parseAddressList(process.env.NEXT_PUBLIC_AVALANCHE_ADMIN_ADDRESSES)
+    if (chainSpecific.length > 0) return chainSpecific
+  }
+
+  if (chainKey === 'injective_testnet') {
+    const chainSpecific = parseAddressList(process.env.NEXT_PUBLIC_INJECTIVE_ADMIN_ADDRESSES)
+    if (chainSpecific.length > 0) return chainSpecific
+  }
+
+  return parseAddressList(process.env.NEXT_PUBLIC_ADMIN_ADDRESSES)
+}
+
+function normalizeAddress(address: string): string {
+  if (address.startsWith('0x')) {
+    return address.toLowerCase()
+  }
+  return address
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,13 +46,16 @@ const queryClient = new QueryClient({
 
 export default function AdminPage() {
   const { wallet } = useWalletStore()
+  const { chainKey } = useChain()
+  const adminAddresses = getAdminAddressesByChain(chainKey)
   
-  // Check if current wallet is admin
-  const isAdmin = wallet && ADMIN_ADDRESSES.includes(wallet.address)
+  const isAdmin = wallet
+    ? adminAddresses.map(normalizeAddress).includes(normalizeAddress(wallet.address))
+    : false
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AdminPanel isAdmin={isAdmin || false} />
+      <AdminPanel isAdmin={isAdmin} />
     </QueryClientProvider>
   )
 }
